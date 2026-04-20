@@ -4,88 +4,81 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HR 재직인원 대시보드</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="HR 대시보드">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; min-height: 100vh; padding: 24px; }
-    .container { max-width: 960px; margin: 0 auto; }
+    .wrap { max-width: 960px; margin: 0 auto; }
     .card { background: #fff; border-radius: 14px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; }
-    .header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-    .header h1 { font-size: 22px; font-weight: 700; color: #1e293b; }
-    .header p { font-size: 13px; color: #94a3b8; margin-top: 2px; }
-    .selects { display: flex; gap: 8px; }
-    select { border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 14px; color: #334155; background: #f8fafc; cursor: pointer; }
-    .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
-    .summary-card { background: #fff; border-radius: 14px; padding: 18px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    .summary-card .label { font-size: 13px; color: #94a3b8; margin-bottom: 6px; }
-    .summary-card .value { font-size: 28px; font-weight: 700; }
-    .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-    .chart-title { font-weight: 600; color: #1e293b; margin-bottom: 16px; font-size: 15px; }
-    .dept-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #f8fafc; border-radius: 10px; margin-bottom: 10px; }
-    .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .dept-name { flex: 1; font-weight: 500; color: #334155; font-size: 14px; cursor: pointer; }
-    .dept-name input { border: 1px solid #6366f1; border-radius: 6px; padding: 4px 8px; font-size: 14px; width: 100px; }
-    .counter { display: flex; align-items: center; gap: 6px; }
-    .btn-count { width: 28px; height: 28px; border-radius: 6px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; font-size: 16px; color: #64748b; display: flex; align-items: center; justify-content: center; }
-    .count-input { width: 64px; text-align: center; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 0; font-size: 15px; font-weight: 600; color: #1e293b; }
-    .unit { font-size: 13px; color: #94a3b8; width: 20px; }
-    .btn-del { background: none; border: none; color: #f43f5e; cursor: pointer; font-size: 18px; margin-left: 4px; }
-    .add-row { display: flex; gap: 8px; margin-top: 14px; }
-    .add-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; font-size: 14px; color: #334155; }
-    .btn-reset { background: #fff; color: #f43f5e; border: 1px solid #f43f5e; border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
-    .btn-add { background: #6366f1; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 14px; font-weight: 600; cursor: pointer; }
-    @media (max-width: 600px) { .summary { grid-template-columns: 1fr; } .charts { grid-template-columns: 1fr; } }
+    .header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    h1 { font-size:22px; font-weight:700; color:#1e293b; }
+    .sub { font-size:13px; color:#94a3b8; margin-top:2px; }
+    select { border:1px solid #e2e8f0; border-radius:8px; padding:6px 12px; font-size:14px; color:#334155; background:#f8fafc; cursor:pointer; }
+    .summary { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
+    .scard { background:#fff; border-radius:14px; padding:18px 22px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+    .slabel { font-size:13px; color:#94a3b8; margin-bottom:6px; }
+    .sval { font-size:28px; font-weight:700; }
+    .charts { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+    .ctitle { font-weight:600; color:#1e293b; margin-bottom:16px; font-size:15px; }
+    /* org rows */
+    .org-top { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; margin-bottom:6px; border-left:4px solid #6366f1; background:#f0f0ff; }
+    .org-child { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; margin-bottom:6px; margin-left:24px; background:#f8fafc; border-left:4px solid #6366f144; }
+    .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .oname { flex:1; font-size:14px; color:#1e293b; cursor:pointer; }
+    .oname.top { font-weight:700; font-size:15px; }
+    .oname input { border:1px solid #6366f1; border-radius:6px; padding:3px 8px; font-size:14px; width:120px; }
+    .badge { font-size:11px; color:#94a3b8; font-weight:400; margin-left:6px; }
+    .counter { display:flex; align-items:center; gap:4px; }
+    .cbtn { width:28px; height:28px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; cursor:pointer; font-size:15px; color:#64748b; }
+    .cinput { width:56px; text-align:center; border:1px solid #e2e8f0; border-radius:6px; padding:3px 0; font-size:14px; font-weight:600; color:#1e293b; }
+    .total-badge { font-weight:700; font-size:15px; min-width:60px; text-align:right; }
+    .unit { font-size:13px; color:#94a3b8; }
+    .mbtn { background:none; border:1px solid #e2e8f0; border-radius:6px; width:24px; height:24px; cursor:pointer; font-size:11px; color:#64748b; }
+    .mbtn:disabled { opacity:0.3; cursor:default; }
+    .delbtn { background:none; border:none; color:#f43f5e; cursor:pointer; font-size:16px; }
+    .add-row { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+    .add-input { flex:1; min-width:120px; border:1px solid #e2e8f0; border-radius:8px; padding:8px 14px; font-size:14px; color:#334155; }
+    .btn-add { background:#6366f1; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:14px; font-weight:600; cursor:pointer; }
+    .btn-reset { background:#fff; color:#f43f5e; border:1px solid #f43f5e; border-radius:8px; padding:8px 14px; font-size:14px; font-weight:600; cursor:pointer; }
+    @media(max-width:600px){ .summary,.charts{grid-template-columns:1fr;} }
   </style>
 </head>
 <body>
-<div class="container">
-  <!-- Header -->
+<div class="wrap">
   <div class="card header">
     <div>
       <h1>📋 HR 재직인원 대시보드</h1>
-      <p>월초 기준 부서별 재직인원 현황</p>
+      <p class="sub">월초 기준 조직별 재직인원 현황</p>
     </div>
-    <div class="selects">
+    <div style="display:flex;gap:8px;">
       <select id="yearSel"></select>
       <select id="monthSel"></select>
     </div>
   </div>
 
-  <!-- Summary -->
   <div class="summary">
-    <div class="summary-card">
-      <div class="label">👥 전체 재직인원</div>
-      <div class="value" id="totalVal" style="color:#6366f1">-</div>
-    </div>
-    <div class="summary-card">
-      <div class="label">🏢 부서 수</div>
-      <div class="value" id="deptVal" style="color:#10b981">-</div>
-    </div>
-    <div class="summary-card">
-      <div class="label">📊 평균 부서 인원</div>
-      <div class="value" id="avgVal" style="color:#f59e0b">-</div>
-    </div>
+    <div class="scard"><div class="slabel">👥 전체 재직인원</div><div class="sval" id="totalVal" style="color:#6366f1">-</div></div>
+    <div class="scard"><div class="slabel">🏢 상위조직 수</div><div class="sval" id="topVal" style="color:#10b981">-</div></div>
+    <div class="scard"><div class="slabel">📊 평균 조직 인원</div><div class="sval" id="avgVal" style="color:#f59e0b">-</div></div>
   </div>
 
-  <!-- Charts -->
   <div class="charts">
-    <div class="card">
-      <div class="chart-title">부서별 인원 비교</div>
-      <canvas id="barChart" height="200"></canvas>
-    </div>
-    <div class="card">
-      <div class="chart-title">부서별 비율</div>
-      <canvas id="pieChart" height="200"></canvas>
-    </div>
+    <div class="card"><div class="ctitle">조직별 인원 비교</div><canvas id="barChart" height="200"></canvas></div>
+    <div class="card"><div class="ctitle">조직별 비율</div><canvas id="pieChart" height="200"></canvas></div>
   </div>
 
-  <!-- Dept Table -->
   <div class="card">
-    <div class="chart-title">부서별 인원 입력</div>
-    <div id="deptList"></div>
+    <div class="ctitle">조직 구조 및 인원 입력</div>
+    <div id="orgList"></div>
     <div class="add-row">
-      <input class="add-input" id="newDeptInput" placeholder="새 부서명 입력" />
-      <button class="btn-add" onclick="addDept()">+ 부서 추가</button>
+      <input class="add-input" id="newName" placeholder="새 조직명" />
+      <select id="newParent"><option value="none">상위조직 (독립)</option></select>
+      <button class="btn-add" onclick="addOrg()">+ 추가</button>
       <button class="btn-reset" onclick="resetData()">🔄 초기화</button>
     </div>
   </div>
@@ -95,136 +88,184 @@
 const COLORS = ["#6366f1","#22d3ee","#f59e0b","#10b981","#f43f5e","#8b5cf6","#3b82f6","#ec4899","#14b8a6","#f97316"];
 const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
 
-const DEFAULT_DEPTS = [
-  { id:1, name:"개발", count:32 },
-  { id:2, name:"마케팅", count:18 },
-  { id:3, name:"영업", count:25 },
-  { id:4, name:"인사", count:10 },
-  { id:5, name:"재무", count:8 },
+const DEFAULT = [
+  {id:1,name:"개발본부",parentId:null,count:0,order:0},
+  {id:2,name:"프론트엔드팀",parentId:1,count:15,order:0},
+  {id:3,name:"백엔드팀",parentId:1,count:17,order:1},
+  {id:4,name:"마케팅본부",parentId:null,count:0,order:1},
+  {id:5,name:"브랜드팀",parentId:4,count:10,order:0},
+  {id:6,name:"퍼포먼스팀",parentId:4,count:8,order:1},
+  {id:7,name:"인사팀",parentId:null,count:10,order:2},
+  {id:8,name:"재무팀",parentId:null,count:8,order:3},
 ];
 
-function loadData() {
-  try {
-    const saved = localStorage.getItem("hr-depts");
-    return saved ? JSON.parse(saved) : DEFAULT_DEPTS;
-  } catch { return DEFAULT_DEPTS; }
+function load() {
+  try { const s = localStorage.getItem("hr-orgs"); return s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULT)); }
+  catch { return JSON.parse(JSON.stringify(DEFAULT)); }
+}
+function save() { localStorage.setItem("hr-orgs", JSON.stringify(orgs)); localStorage.setItem("hr-nid", nextId); }
+function resetData() {
+  if (!confirm("초기화할까요? 저장된 데이터가 모두 사라져요.")) return;
+  orgs = JSON.parse(JSON.stringify(DEFAULT)); nextId = 9; save(); render();
 }
 
-function saveData() {
-  localStorage.setItem("hr-depts", JSON.stringify(depts));
-  localStorage.setItem("hr-nextId", nextId);
+let orgs = load();
+let nextId = parseInt(localStorage.getItem("hr-nid") || "9");
+let editingId = null;
+
+function calcTotal(id) {
+  const children = orgs.filter(o => o.parentId === id);
+  if (!children.length) return (orgs.find(o => o.id === id)||{}).count || 0;
+  return children.reduce((s,c) => s + calcTotal(c.id), 0);
+}
+function topOrgs() { return orgs.filter(o => o.parentId === null).sort((a,b) => a.order - b.order); }
+function colorOf(id) { const tops = topOrgs(); return COLORS[tops.findIndex(o => o.id === id) % COLORS.length]; }
+function topIdOf(id) {
+  const o = orgs.find(x => x.id === id); if (!o) return id;
+  if (o.parentId === null) return o.id;
+  return topIdOf(o.parentId);
 }
 
-let depts = loadData();
-let nextId = parseInt(localStorage.getItem("hr-nextId") || "6");
+// Year/Month
+const today = new Date();
+const ySel = document.getElementById("yearSel");
+const mSel = document.getElementById("monthSel");
+for (let y = today.getFullYear()-2; y <= today.getFullYear()+2; y++)
+  ySel.innerHTML += `<option value="${y}" ${y===today.getFullYear()?"selected":""}>${y}년</option>`;
+MONTHS.forEach((m,i) => mSel.innerHTML += `<option value="${i+1}" ${i+1===today.getMonth()+1?"selected":""}>${m}</option>`);
+
 let barChart, pieChart;
 
-// Year/Month selectors
-const today = new Date();
-const yearSel = document.getElementById("yearSel");
-const monthSel = document.getElementById("monthSel");
-for (let y = today.getFullYear() - 2; y <= today.getFullYear() + 2; y++) {
-  yearSel.innerHTML += `<option value="${y}" ${y === today.getFullYear() ? "selected" : ""}>${y}년</option>`;
-}
-MONTHS.forEach((m, i) => {
-  monthSel.innerHTML += `<option value="${i+1}" ${i+1 === today.getMonth()+1 ? "selected" : ""}>${m}</option>`;
-});
-
-function getTotal() { return depts.reduce((s, d) => s + d.count, 0); }
-
-function updateSummary() {
-  const total = getTotal();
-  document.getElementById("totalVal").textContent = total.toLocaleString() + "명";
-  document.getElementById("deptVal").textContent = depts.length + "개";
-  document.getElementById("avgVal").textContent = depts.length ? Math.round(total / depts.length) + "명" : "-";
-}
-
 function updateCharts() {
-  const labels = depts.map(d => d.name);
-  const data = depts.map(d => d.count);
-  const colors = depts.map((_, i) => COLORS[i % COLORS.length]);
-
+  const tops = topOrgs();
+  const labels = tops.map(o => o.name);
+  const data = tops.map(o => calcTotal(o.id));
+  const colors = tops.map((_,i) => COLORS[i%COLORS.length]);
   if (barChart) barChart.destroy();
   barChart = new Chart(document.getElementById("barChart"), {
-    type: "bar",
-    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 6 }] },
-    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } }, responsive: true }
+    type:"bar", data:{ labels, datasets:[{ data, backgroundColor:colors, borderRadius:6 }] },
+    options:{ plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}, responsive:true }
   });
-
   if (pieChart) pieChart.destroy();
   pieChart = new Chart(document.getElementById("pieChart"), {
-    type: "doughnut",
-    data: { labels, datasets: [{ data, backgroundColor: colors }] },
-    options: { plugins: { legend: { position: "bottom", labels: { font: { size: 11 } } } }, responsive: true }
+    type:"doughnut", data:{ labels, datasets:[{ data, backgroundColor:colors }] },
+    options:{ plugins:{legend:{position:"bottom",labels:{font:{size:11}}}}, responsive:true }
   });
 }
 
-function renderDepts() {
-  const list = document.getElementById("deptList");
-  list.innerHTML = depts.map((d, i) => `
-    <div class="dept-row" id="row-${d.id}">
-      <div class="dot" style="background:${COLORS[i % COLORS.length]}"></div>
-      <span class="dept-name" onclick="editName(${d.id})" id="name-${d.id}">${d.name}</span>
-      <div class="counter">
-        <button class="btn-count" onclick="changeCount(${d.id}, -1)">−</button>
-        <input class="count-input" type="number" value="${d.count}" min="0" onchange="setCount(${d.id}, this.value)" />
-        <button class="btn-count" onclick="changeCount(${d.id}, 1)">+</button>
+function updateSummary() {
+  const tops = topOrgs();
+  const total = tops.reduce((s,o) => s + calcTotal(o.id), 0);
+  document.getElementById("totalVal").textContent = total.toLocaleString() + "명";
+  document.getElementById("topVal").textContent = tops.length + "개";
+  document.getElementById("avgVal").textContent = tops.length ? Math.round(total/tops.length)+"명" : "-";
+}
+
+function updateParentSelect() {
+  const sel = document.getElementById("newParent");
+  sel.innerHTML = `<option value="none">상위조직 (독립)</option>`;
+  topOrgs().forEach(o => sel.innerHTML += `<option value="${o.id}">${o.name} 하위</option>`);
+}
+
+function moveOrg(id, dir) {
+  const org = orgs.find(o => o.id === id);
+  const siblings = orgs.filter(o => o.parentId === org.parentId).sort((a,b) => a.order - b.order);
+  const idx = siblings.findIndex(o => o.id === id);
+  const swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx >= siblings.length) return;
+  const swapId = siblings[swapIdx].id;
+  const tmpOrder = org.order;
+  orgs = orgs.map(x => {
+    if (x.id === id) return {...x, order: siblings[swapIdx].order};
+    if (x.id === swapId) return {...x, order: tmpOrder};
+    return x;
+  });
+  save(); render();
+}
+
+function updateCount(id, val) {
+  orgs = orgs.map(x => x.id === id ? {...x, count: Math.max(0, parseInt(val)||0)} : x);
+  save(); updateSummary(); updateCharts();
+}
+
+function saveName(id) {
+  const inp = document.getElementById("editInput-"+id);
+  if (inp) orgs = orgs.map(x => x.id === id ? {...x, name: inp.value.trim()||x.name} : x);
+  editingId = null; save(); render();
+}
+
+function removeOrg(id) {
+  const childIds = orgs.filter(o => o.parentId === id).map(o => o.id);
+  if (childIds.length && !confirm("하위조직도 함께 삭제됩니다. 계속할까요?")) return;
+  orgs = orgs.filter(x => x.id !== id && !childIds.includes(x.id));
+  save(); render();
+}
+
+function addOrg() {
+  const name = document.getElementById("newName").value.trim();
+  if (!name) return;
+  const parentVal = document.getElementById("newParent").value;
+  const parentId = parentVal === "none" ? null : parseInt(parentVal);
+  const siblings = orgs.filter(o => o.parentId === parentId);
+  const maxOrder = siblings.length ? Math.max(...siblings.map(o => o.order)) + 1 : 0;
+  orgs.push({id: nextId++, name, parentId, count:0, order: maxOrder});
+  document.getElementById("newName").value = "";
+  save(); render();
+}
+
+function renderOrg(org, isTop) {
+  const children = orgs.filter(o => o.parentId === org.id).sort((a,b) => a.order - b.order);
+  const hasChildren = children.length > 0;
+  const siblings = orgs.filter(o => o.parentId === org.parentId).sort((a,b) => a.order - b.order);
+  const idx = siblings.findIndex(o => o.id === org.id);
+  const tid = topIdOf(org.id);
+  const color = colorOf(tid);
+  const total = calcTotal(org.id);
+  const isEditing = editingId === org.id;
+
+  let html = `
+    <div class="${isTop ? 'org-top' : 'org-child'}" style="border-left-color:${isTop ? color : color+'66'}; background:${isTop ? '#f0f0ff' : '#f8fafc'}">
+      <div class="dot" style="background:${isTop ? color : color+'99'}"></div>
+      <div class="oname ${isTop?'top':''}">
+        ${isEditing
+          ? `<input id="editInput-${org.id}" value="${org.name}" onblur="saveName(${org.id})" onkeydown="if(event.key==='Enter')this.blur()" autofocus />`
+          : `<span onclick="editingId=${org.id};render()">${org.name}</span>${isTop ? '<span class="badge">상위조직</span>' : ''}`
+        }
       </div>
-      <span class="unit">명</span>
-      <button class="btn-del" onclick="removeDept(${d.id})">✕</button>
+      ${hasChildren
+        ? `<span class="total-badge" style="color:${isTop?color:'#64748b'}">${total.toLocaleString()}명</span>`
+        : `<div class="counter">
+            <button class="cbtn" onclick="updateCount(${org.id},${org.count-1})">−</button>
+            <input class="cinput" type="number" value="${org.count}" min="0" onchange="updateCount(${org.id},this.value)" />
+            <button class="cbtn" onclick="updateCount(${org.id},${org.count+1})">+</button>
+           </div>
+           <span class="unit">명</span>`
+      }
+      <button class="mbtn" onclick="moveOrg(${org.id},-1)" ${idx===0?"disabled":""}>▲</button>
+      <button class="mbtn" onclick="moveOrg(${org.id},1)" ${idx===siblings.length-1?"disabled":""}>▼</button>
+      <button class="delbtn" onclick="removeOrg(${org.id})">✕</button>
     </div>
-  `).join("");
+    ${children.map(c => renderOrg(c, false)).join("")}
+  `;
+  return html;
+}
+
+function render() {
+  document.getElementById("orgList").innerHTML = topOrgs().map(o => renderOrg(o, true)).join("");
   updateSummary();
   updateCharts();
+  updateParentSelect();
+  // autofocus 처리
+  if (editingId) {
+    const inp = document.getElementById("editInput-"+editingId);
+    if (inp) inp.focus();
+  }
 }
 
-function editName(id) {
-  const span = document.getElementById("name-" + id);
-  const d = depts.find(x => x.id === id);
-  span.innerHTML = `<input value="${d.name}" onblur="saveName(${id}, this.value)" onkeydown="if(event.key==='Enter')this.blur()" autofocus style="border:1px solid #6366f1;border-radius:6px;padding:4px 8px;font-size:14px;width:100px;" />`;
-  span.querySelector("input").focus();
-}
+document.getElementById("newName").addEventListener("keydown", e => { if(e.key==="Enter") addOrg(); });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 
-function resetData() {
-  if (!confirm("정말 초기화할까요? 저장된 데이터가 모두 사라져요.")) return;
-  localStorage.removeItem("hr-depts");
-  localStorage.removeItem("hr-nextId");
-  depts = JSON.parse(JSON.stringify(DEFAULT_DEPTS));
-  nextId = 6;
-  renderDepts();
-}
-
-function saveName(id, val) {
-  depts = depts.map(d => d.id === id ? { ...d, name: val.trim() || d.name } : d);
-  saveData(); renderDepts();
-}
-
-function changeCount(id, delta) {
-  depts = depts.map(d => d.id === id ? { ...d, count: Math.max(0, d.count + delta) } : d);
-  saveData(); renderDepts();
-}
-
-function setCount(id, val) {
-  depts = depts.map(d => d.id === id ? { ...d, count: Math.max(0, parseInt(val) || 0) } : d);
-  saveData(); updateSummary(); updateCharts();
-}
-
-function removeDept(id) {
-  depts = depts.filter(d => d.id !== id);
-  saveData(); renderDepts();
-}
-
-function addDept() {
-  const input = document.getElementById("newDeptInput");
-  if (!input.value.trim()) return;
-  depts.push({ id: nextId++, name: input.value.trim(), count: 0 });
-  input.value = "";
-  saveData(); renderDepts();
-}
-
-document.getElementById("newDeptInput").addEventListener("keydown", e => { if (e.key === "Enter") addDept(); });
-
-renderDepts();
+render();
 </script>
 </body>
 </html>
