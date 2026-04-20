@@ -32,6 +32,7 @@
     .btn-del { background: none; border: none; color: #f43f5e; cursor: pointer; font-size: 18px; margin-left: 4px; }
     .add-row { display: flex; gap: 8px; margin-top: 14px; }
     .add-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; font-size: 14px; color: #334155; }
+    .btn-reset { background: #fff; color: #f43f5e; border: 1px solid #f43f5e; border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
     .btn-add { background: #6366f1; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 14px; font-weight: 600; cursor: pointer; }
     @media (max-width: 600px) { .summary { grid-template-columns: 1fr; } .charts { grid-template-columns: 1fr; } }
   </style>
@@ -85,6 +86,7 @@
     <div class="add-row">
       <input class="add-input" id="newDeptInput" placeholder="새 부서명 입력" />
       <button class="btn-add" onclick="addDept()">+ 부서 추가</button>
+      <button class="btn-reset" onclick="resetData()">🔄 초기화</button>
     </div>
   </div>
 </div>
@@ -93,14 +95,28 @@
 const COLORS = ["#6366f1","#22d3ee","#f59e0b","#10b981","#f43f5e","#8b5cf6","#3b82f6","#ec4899","#14b8a6","#f97316"];
 const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
 
-let depts = [
+const DEFAULT_DEPTS = [
   { id:1, name:"개발", count:32 },
   { id:2, name:"마케팅", count:18 },
   { id:3, name:"영업", count:25 },
   { id:4, name:"인사", count:10 },
   { id:5, name:"재무", count:8 },
 ];
-let nextId = 6;
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem("hr-depts");
+    return saved ? JSON.parse(saved) : DEFAULT_DEPTS;
+  } catch { return DEFAULT_DEPTS; }
+}
+
+function saveData() {
+  localStorage.setItem("hr-depts", JSON.stringify(depts));
+  localStorage.setItem("hr-nextId", nextId);
+}
+
+let depts = loadData();
+let nextId = parseInt(localStorage.getItem("hr-nextId") || "6");
 let barChart, pieChart;
 
 // Year/Month selectors
@@ -169,24 +185,33 @@ function editName(id) {
   span.querySelector("input").focus();
 }
 
+function resetData() {
+  if (!confirm("정말 초기화할까요? 저장된 데이터가 모두 사라져요.")) return;
+  localStorage.removeItem("hr-depts");
+  localStorage.removeItem("hr-nextId");
+  depts = JSON.parse(JSON.stringify(DEFAULT_DEPTS));
+  nextId = 6;
+  renderDepts();
+}
+
 function saveName(id, val) {
   depts = depts.map(d => d.id === id ? { ...d, name: val.trim() || d.name } : d);
-  renderDepts();
+  saveData(); renderDepts();
 }
 
 function changeCount(id, delta) {
   depts = depts.map(d => d.id === id ? { ...d, count: Math.max(0, d.count + delta) } : d);
-  renderDepts();
+  saveData(); renderDepts();
 }
 
 function setCount(id, val) {
   depts = depts.map(d => d.id === id ? { ...d, count: Math.max(0, parseInt(val) || 0) } : d);
-  updateSummary(); updateCharts();
+  saveData(); updateSummary(); updateCharts();
 }
 
 function removeDept(id) {
   depts = depts.filter(d => d.id !== id);
-  renderDepts();
+  saveData(); renderDepts();
 }
 
 function addDept() {
@@ -194,7 +219,7 @@ function addDept() {
   if (!input.value.trim()) return;
   depts.push({ id: nextId++, name: input.value.trim(), count: 0 });
   input.value = "";
-  renderDepts();
+  saveData(); renderDepts();
 }
 
 document.getElementById("newDeptInput").addEventListener("keydown", e => { if (e.key === "Enter") addDept(); });
